@@ -21,12 +21,18 @@ function HomePage(props) {
   return <MeetupList meetups={props.meetups} />;
 }
 
-// Get Data Before the First rending Component
+/**
+ * Get Data Before the First rending Component
+ * revalidate => The Time when Re-fetching the Latest Data  if the Page is requested
+ * https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
+ * @returns
+ */
 export async function getStaticProps() {
   return {
     props: {
       meetups: DUMMY_MEETUPS,
     },
+    revalidate: 1,
   };
 }
 
