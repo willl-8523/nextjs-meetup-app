@@ -22,15 +22,17 @@ function HomePage(props) {
 }
 
 /**
- * Excute always run in th Server after Deploiement
- * Use when the Data change Frequently or when you work with incoming request
- * https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#server-side-rendering-getserversideprops
+ * Get Data Before the First rending Component
+ * revalidate => The Time when Re-fetching the Latest Data  if the Page is requested
+ * https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
+ * @returns
  */
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return {
     props: {
       meetups: DUMMY_MEETUPS,
     },
+    revalidate: 1,
   };
 }
 
