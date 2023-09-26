@@ -5,9 +5,7 @@ async function handler(req, res) {
   if (req.method === 'POST') {
     const data = req.body;
 
-    const client = await MongoClient.connect(
-      'mongodb+srv://symfonypropar:PjR8ebM9vujPViEX@cluster0.55nsvyz.mongodb.net/meetups?retryWrites=true&w=majority'
-    );
+    const client = await MongoClient.connect(process.env.API_URL);
     const db = client.db();
 
     const meetupsCollection = db.collection('meetups');
