@@ -1,12 +1,16 @@
+import { MongoClient } from 'mongodb';
 import MeetupDetail from '../../components/meetups/MeetupDetail';
+import { ObjectId } from 'mongodb';
 
-function MeetupDetails() {
+function MeetupDetails(props) {
+  const { image, title, address, description } = props.meetupData;
+  
   return (
     <MeetupDetail
-      image="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80"
-      title="A First Meetup"
-      address="Some Street 5, Some City"
-      description="The meetup"
+      image={image}
+      title={title}
+      address={address}
+      description={description}
     />
   );
 }
@@ -16,20 +20,21 @@ function MeetupDetails() {
  * https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#dynamic-paths-getstaticpaths
  */
 export async function getStaticPaths() {
+  const client = await MongoClient.connect(process.env.API_URL);
+  const db = client.db();
+
+  const meetupsCollection = db.collection('meetups');
+
+  //Get only Id for each Document in the Collection
+  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+
+  client.close();
+
   return {
     fallback: false,
-    paths: [
-      {
-        params: {
-          meetupId: 'm1',
-        },
-      },
-      {
-        params: {
-          meetupId: 'm2',
-        },
-      },
-    ],
+    paths: meetups.map((meetup) => ({
+      params: { meetupId: meetup._id.toString() },
+    })),
   };
 }
 
@@ -40,16 +45,27 @@ export async function getStaticPaths() {
  */
 export async function getStaticProps(context) {
   const meetupId = context.params.meetupId;
-  
+
+  const client = await MongoClient.connect(process.env.API_URL);
+  const db = client.db();
+
+  const meetupsCollection = db.collection('meetups');
+
+  // Get a Single meetup
+  const selectedMeetup = await meetupsCollection.findOne({
+    _id: new ObjectId(meetupId),
+  });
+
+  client.close();
+
   return {
     props: {
       meetupData: {
-        image:
-          'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80',
-        id: meetupId,
-        title: 'First Meetup',
-        address: 'Some Street 5, Some City',
-        description: 'The meetup',
+        id: selectedMeetup._id.toString(),
+        title: selectedMeetup.title,
+        image: selectedMeetup.image,
+        address: selectedMeetup.address,
+        description: selectedMeetup.description,
       },
     },
   };

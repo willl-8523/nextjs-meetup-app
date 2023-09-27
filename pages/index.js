@@ -20,8 +20,6 @@ export async function getStaticProps() {
   // Get All the document in meetups collection
   const meetups = await meetupsCollection.find().toArray();
 
-  console.log(meetups);
-
   client.close();
 
   return {
